@@ -3,6 +3,7 @@ package com.qst.note.dao;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 import com.mysql.jdbc.Connection;
@@ -108,6 +109,70 @@ public class NoteDao {
 	}
 	}
 
+	
+	// 根据电话号码，返回用户的所有备忘记录
+	public ArrayList<NoteBean> getAllNotes(String tel){
+	
+		ArrayList<NoteBean> all = new ArrayList<NoteBean>();
+	
+		Connection c = DBUtil.getConnection();
+	
+		int id = new UserDao().getIDbyTel(tel); //根据用户名获取用户id
+	
+		
+		try {
+	
+			PreparedStatement pst = (PreparedStatement) c.prepareStatement("select * from note_table where user_id=?");
+	
+			pst.setInt(1, id);
+	
+			ResultSet rs = pst.executeQuery();
+	
+			while(rs.next()) {
+	
+				
+				
+				NoteBean note = new NoteBean();
+	
+				note.setId(rs.getInt("id"));
+	
+				note.setTitle(rs.getString("title"));
+	
+				
+				note.setContent(rs.getString("content"));
+	
+				note.setCreateTime(rs.getString("create_time"));
+	
+				note.setUpdateTime(rs.getString("update_time"));
+	
+				note.setNoteTime(rs.getString("note_time"));
+	
+				note.setUserID(rs.getInt("user_id"));
+	
+				all.add(note);
+	}
+	} catch (SQLException e) {
+	// TODO Auto-generated catch block
+	e.printStackTrace();
+	}
+	return all;
+	}
+
+	
+	//根据id删除一条备忘记录，删除成功返回true，失败返回false
+		public boolean deleteById(int id){
+			Connection c = DBUtil.getConnection();
+			try {
+				PreparedStatement pst = (PreparedStatement) c.prepareStatement("delete from note_table where id=?");
+				pst.setInt(1, id);
+				pst.execute();
+				DBUtil.close(c, pst, null);
+				return true;
+			} catch (SQLException e) {
+				e.printStackTrace();
+				return false;
+			}
+		}
 }
 
 
